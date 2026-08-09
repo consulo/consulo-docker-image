@@ -7,7 +7,6 @@ ARG CONSULO_VERSION=SNAPSHOT
 
 ENV DEBIAN_FRONTEND=noninteractive \
     JAVA_HOME=/opt/jdk \
-    CONSULO_HOME=/opt/consulo \
     PATH=/opt/jdk/bin:$PATH
 
 RUN apt-get update && \
@@ -28,11 +27,10 @@ RUN case "$TARGETARCH" in \
         | tar -xz -C /opt/jdk --strip-components=1 && \
     java -version
 
-RUN mkdir -p "$CONSULO_HOME" && \
-    curl -fsSL "https://api.consulo.io/repository/download?id=consulo.dist.web&channel=${CONSULO_CHANNEL}&platformVersion=${CONSULO_VERSION}" \
-        | tar -xz -C "$CONSULO_HOME" --strip-components=1
+RUN curl -fsSL "https://api.consulo.io/repository/download?id=consulo.dist.web&channel=${CONSULO_CHANNEL}&platformVersion=${CONSULO_VERSION}" \
+        | tar -xz -C /opt
 
-WORKDIR /opt/consulo
+WORKDIR /opt/Consulo
 
 EXPOSE 8080
 
