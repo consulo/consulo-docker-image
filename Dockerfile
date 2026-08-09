@@ -2,12 +2,14 @@ FROM ubuntu:24.04
 
 ARG TARGETARCH
 ARG JDK_VERSION=25
-ARG CONSULO_CHANNEL=nightly
-ARG CONSULO_VERSION=SNAPSHOT
 
 ENV DEBIAN_FRONTEND=noninteractive \
     JAVA_HOME=/opt/jdk \
-    PATH=/opt/jdk/bin:$PATH
+    PATH=/opt/jdk/bin:$PATH \
+    CONSULO_DIR=/opt/consulo \
+    CONSULO_DIST_ID=consulo.dist.web \
+    CONSULO_CHANNEL=nightly \
+    CONSULO_VERSION=SNAPSHOT
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -27,11 +29,11 @@ RUN case "$TARGETARCH" in \
         | tar -xz -C /opt/jdk --strip-components=1 && \
     java -version
 
-RUN curl -fsSL "https://api.consulo.io/repository/download?id=consulo.dist.web&channel=${CONSULO_CHANNEL}&platformVersion=${CONSULO_VERSION}" \
-        | tar -xz -C /opt
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-WORKDIR /opt/Consulo
+VOLUME /opt/consulo
 
 EXPOSE 8080
 
-CMD ["./consulo.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
