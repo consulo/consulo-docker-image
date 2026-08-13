@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PATH=/opt/tools/jdk/bin:/opt/tools/nodejs/bin:/opt/tools/go/bin:/root/go/bin:/opt/tools/dotnet:/opt/tools/rust/cargo/bin:$PATH \
     TOOL_JAVA_VERSION=25 \
     CONSULO_DIR=/opt/consulo \
-    CONSULO_WEB_PORT=8585 \
+    CONSULO_WEB_PORT=8080 \
     CONSULO_DIST_ID=consulo.dist.web \
     CONSULO_CHANNEL=nightly \
     CONSULO_VERSION=SNAPSHOT \
@@ -42,6 +42,6 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 VOLUME /opt/consulo
 VOLUME /opt/tools
 
-EXPOSE 8585
+EXPOSE 8080
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
