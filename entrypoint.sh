@@ -56,8 +56,22 @@ if [ ! -x "$CONSULO_DIR/consulo.sh" ]; then
         | tar -xz -C "$CONSULO_DIR" --strip-components=1
 fi
 
-REQUIRED_JVM_ARGS="-Dconsulo.web.port=$CONSULO_WEB_PORT $REQUIRED_JVM_ARGS"
+: "${CONSULO_RESTART_CODE:=79}"
+
+REQUIRED_JVM_ARGS="-Dconsulo.web.port=$CONSULO_WEB_PORT -Dconsulo.restart.code=$CONSULO_RESTART_CODE $REQUIRED_JVM_ARGS"
 export REQUIRED_JVM_ARGS
 
 cd "$CONSULO_DIR"
-exec ./consulo.sh "$@"
+
+# the platform exits with $CONSULO_RESTART_CODE when it wants to be started again - after a plugin install
+# among others. the same protocol the linux desktop launcher runs, with this loop as the launcher
+while :; do
+    set +e
+    ./consulo.sh "$@"
+    code=$?
+    set -e
+    if [ "$code" -ne "$CONSULO_RESTART_CODE" ]; then
+        exit "$code"
+    fi
+    echo "Restarting Consulo (exit code $code)"
+done
