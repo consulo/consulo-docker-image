@@ -30,8 +30,16 @@ install_go() {
 
 install_rust() {
     echo "Installing Rust $TOOL_RUST_VERSION"
+    # rust-src carries the standard library sources, which the IDE indexes and navigates into -
+    # the minimal profile leaves it out
     curl -fsSL https://sh.rustup.rs \
-        | sh -s -- -y --no-modify-path --profile minimal --default-toolchain "$TOOL_RUST_VERSION"
+        | sh -s -- -y --no-modify-path --profile minimal --component rust-src --default-toolchain "$TOOL_RUST_VERSION"
+}
+
+ensure_rust_src() {
+    [ -d "$(rustc --print sysroot)/lib/rustlib/src/rust" ] && return
+    echo "Installing Rust component rust-src"
+    rustup component add rust-src || echo "Failed to install Rust component rust-src" >&2
 }
 
 install_dotnet() {
@@ -41,6 +49,7 @@ install_dotnet() {
 }
 
 [ -d "$JAVA_HOME" ] || install_java
+[ "$TOOL_RUST" = "1" ] && ensure_rust_src
 
 for tool in nodejs go rust dotnet; do
     enabled=$(eval "echo \$TOOL_$(echo "$tool" | tr '[:lower:]' '[:upper:]')")
